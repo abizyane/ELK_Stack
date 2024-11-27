@@ -1,0 +1,93 @@
+version: '3.9'
+
+networks:
+  infra:
+    name: astropong
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: nginx:sa
+    container_name: nginx
+    ports:
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - infra
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "https://localhost:443"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  frontend:
+    build: 
+      context: ../frontend
+      dockerfile: Dockerfile
+    image: frontend:sa
+    container_name: frontend
+    volumes:
+      - ../frontend/app:/app
+      - /app/node_modules
+    expose:
+      - "5173"
+    depends_on:
+      - backend
+    networks:
+      - infra
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5173"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  backend:
+    build: 
+      context: ../backend
+      dockerfile: Dockerfile
+    image: backend:sa
+    container_name: backend
+    volumes:
+      - ../backend/app:/app
+    expose:
+      - "8000"
+    depends_on:
+      - database
+    env_file:
+      - .env
+    networks:
+      - infra
+    healthcheck:
+      test: ["CMD-SHELL", "python manage.py check || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+
+  database:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    image: database:sa
+    container_name: ${POSTGRES_HOST}
+    volumes:
+      - ./database/data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    env_file:
+      - .env
+    networks:
+      - infra
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+  

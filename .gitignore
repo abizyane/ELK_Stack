@@ -1,0 +1,7 @@
+/backend/app/logs/*
+# infrastructure/.env
+infrastructure/elasticsearch/data/*
+infrastructure/logstash/data/*
+infrastructure/kibana/data/*
+infrastructure/database/data/*
+

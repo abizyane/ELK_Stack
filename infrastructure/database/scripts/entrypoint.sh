@@ -1,5 +1,7 @@
 #!/bin/sh
 
+filebeat -e -c /etc/filebeat/filebeat.yml &
+
 echo "Starting PostgreSQL setup..."
 
 if [ -z "$(ls -A "$PGDATA")" ]; then

@@ -136,3 +136,15 @@ services:
       - infra
     restart: always
     
+  filebeat:
+    image: filebeat:8.11.4
+    container_name: filebeat
+    volumes:
+      - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
+    depends_on:
+      - logstash
+    env_file:
+      - .env
+    networks:
+      - infra
+    restart: always

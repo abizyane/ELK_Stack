@@ -4,11 +4,15 @@ filebeat.inputs:
     paths:
       - /var/lib/docker/containers/*/*.log
 
-# processors:
-#   - add_docker_metadata:
-#       host: "unix:///var/run/docker.sock"
+processors:
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
 
-output.elasticsearch:
+output.logstash:
   hosts: ["logstash:5044"]
   username: "${LOGSTASH_USER}"
   password: "${LOGSTASH_PASSWORD}"
+
+monitoring.metrics:
+  use_system_metrics: false
+

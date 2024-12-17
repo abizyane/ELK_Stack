@@ -1,9 +1,8 @@
 network.host: 0.0.0.0
-cluster.name: elasticsearch
+cluster.name: ${CLUSTER_NAME}
 http.port: 9200
 # node.name: ${NODE_NAME}
 # path.logs: /usr/share/elasticsearch/logs
 # path.data: /usr/share/elasticsearch/data
-# discovery.type: single-node
-# xpack.license.self_generated.type: basic
+discovery.type: single-node
 xpack.security.enabled: false

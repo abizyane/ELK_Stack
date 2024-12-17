@@ -8,11 +8,19 @@ processors:
   - add_docker_metadata:
       host: "unix:///var/run/docker.sock"
 
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
+
 output.logstash:
   hosts: ["logstash:5044"]
-  username: "${LOGSTASH_USER}"
-  password: "${LOGSTASH_PASSWORD}"
+# output.logstash:
+#   hosts: ["${LOGSTASH_HOST}"]
+  # username: "${ELK_USERNAME}"
+  # password: "${ELK_PASSWORD}"
 
-monitoring.metrics:
-  use_system_metrics: false
+# monitoring:
+#   metrics:
+#     enabled: false
 

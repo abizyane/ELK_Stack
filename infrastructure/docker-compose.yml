@@ -99,6 +99,7 @@ services:
       - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     expose:
       - "9200"
+      - "9300"
     env_file:
       - .env
     networks:
@@ -109,8 +110,9 @@ services:
     image: docker.elastic.co/logstash/logstash:8.17.0
     container_name: logstash
     volumes:
-      - ./logstash/conf/pipeline:/usr/share/logstash/pipeline
+      - ./logstash/conf/pipeline:/usr/share/logstash/pipeline:ro
       - ./logstash/conf/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/data:/usr/share/logstash/data
     depends_on:
       - elasticsearch
     expose:
@@ -135,18 +137,19 @@ services:
     networks:
       - infra
     restart: always
-    
+
   filebeat:
     image: docker.elastic.co/beats/filebeat:7.17.26
     container_name: filebeat
+    user: root
     volumes:
       - ./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/containers:/var/lib/docker/containers:ro
-    depends_on:
-      - logstash
-    env_file:
-      - .env
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./filebeat/data:/usr/share/filebeat/data
+    environment:
+      - LOGSTASH_HOST=logstash:5044
     networks:
       - infra
+    depends_on:
+      - logstash
     restart: always

@@ -1,26 +1,55 @@
-filebeat.inputs:
-  - type: container
-    enabled: true
-    paths:
-      - /var/lib/docker/containers/*/*.log
+# filebeat.inputs:
+#   - type: container
+#     enabled: true
+#     paths:
+#       - /var/lib/docker/containers/*/*.log
 
-processors:
-  - add_docker_metadata:
-      host: "unix:///var/run/docker.sock"
+# processors:
+#   - add_docker_metadata:
+#       host: "unix:///var/run/docker.sock"
+
+# filebeat.autodiscover:
+#   providers:
+#     - type: docker
+#       hints.enabled: true
+
+# output.logstash:
+#   hosts: ["logstash:5044"]
+# # output.logstash:
+# #   hosts: ["${LOGSTASH_HOST}"]
+#   # username: "${ELK_USERNAME}"
+#   # password: "${ELK_PASSWORD}"
+
+# monitoring:
+#   metrics:
+#     enabled: false
+
+filebeat.inputs:
+- type: filestream
+ id: default-filestream
+ paths:
+   - ingest_data/*.log
+
 
 filebeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
+ providers:
+   - type: docker
+     hints.enabled: true
 
-output.logstash:
-  hosts: ["logstash:5044"]
-# output.logstash:
-#   hosts: ["${LOGSTASH_HOST}"]
-  # username: "${ELK_USERNAME}"
-  # password: "${ELK_PASSWORD}"
 
-monitoring:
-  metrics:
-    enabled: false
+processors:
+- add_docker_metadata: ~
 
+
+setup.kibana:
+ host: ${KIBANA_HOSTS}
+ username: ${ELASTIC_USER}
+ password: ${ELASTIC_PASSWORD}
+
+
+output.elasticsearch:
+ hosts: ${ELASTIC_HOSTS}
+ username: ${ELASTIC_USER}
+ password: ${ELASTIC_PASSWORD}
+ ssl.enabled: true
+ ssl.certificate_authorities: "certs/ca/ca.crt"

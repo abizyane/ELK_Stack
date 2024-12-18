@@ -121,6 +121,8 @@ services:
       interval: 1s
       timeout: 5s
       retries: 120
+    env_file:
+      - .env
   
   elasticsearch:
    depends_on:

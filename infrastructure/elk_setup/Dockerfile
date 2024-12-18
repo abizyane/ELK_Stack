@@ -3,13 +3,13 @@ FROM docker.elastic.co/elasticsearch/elasticsearch:8.17.0
 USER root
 
 RUN bash -c '\
-	   if [ x${ELASTIC_PASSWORD} == x ]; then\
-	     echo "Set the ELASTIC_PASSWORD environment variable in the .env file";\
-	     exit 1;\
-	   elif [ x${KIBANA_PASSWORD} == x ]; then\
-	     echo "Set the KIBANA_PASSWORD environment variable in the .env file";\
-	     exit 1;\
-	   fi;\
+	#    if [ x${ELASTIC_PASSWORD} == x ]; then\
+	#      echo "Set the ELASTIC_PASSWORD environment variable in the .env file";\
+	#      exit 1;\
+	#    elif [ x${KIBANA_PASSWORD} == x ]; then\
+	#      echo "Set the KIBANA_PASSWORD environment variable in the .env file";\
+	#      exit 1;\
+	#    fi;\
 	   if [ ! -f config/certs/ca.zip ]; then\
 	     echo "Creating CA";\
 	     bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;\

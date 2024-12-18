@@ -20,7 +20,7 @@ output.logstash:
   # username: "${ELK_USERNAME}"
   # password: "${ELK_PASSWORD}"
 
-# monitoring:
-#   metrics:
-#     enabled: false
+monitoring:
+  metrics:
+    enabled: false
 

@@ -1,10 +1,27 @@
+
+
 version: '3.9'
+
+volumes:
+ certs:
+   driver: local
+ esdata01:
+   driver: local
+ kibanadata:
+   driver: local
+ metricbeatdata01:
+   driver: local
+ filebeatdata01:
+   driver: local
+ logstashdata01:
+   driver: local
 
 networks:
   infra:
     name: astropong
 
 services:
+
   nginx:
     build:
       context: ./nginx
@@ -91,17 +108,42 @@ services:
       retries: 3
     restart: always
   
+  elk_setup:
+    build:
+      context: ./elk_setup
+      dockerfile: Dockerfile
+    image: elk_setup:sa
+    container_name: elk_setup
+    volumes:
+      - certs:/usr/share/elasticsearch/config/certs
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f config/certs/elasticsearch/elasticsearch.crt ]"]
+      interval: 1s
+      timeout: 5s
+      retries: 120
+  
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
     container_name: elasticsearch
     volumes:
       - ./elasticsearch/data:/usr/share/elasticsearch/data
-      - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      # - ./elasticsearch/conf/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     expose:
       - "9200"
       - "9300"
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
+    environment:
+      # - node.name=elasticsearch
+      # - cluster.name=elasticsearch_cluster
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      # - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
     networks:
       - infra
     restart: always
@@ -112,13 +154,16 @@ services:
     volumes:
       - ./logstash/conf/pipeline:/usr/share/logstash/pipeline:ro
       - ./logstash/conf/logstash.yml:/usr/share/logstash/config/logstash.yml
-      - ./logstash/data:/usr/share/logstash/data
+      # - ./logstash/data:/usr/share/logstash/data
     depends_on:
       - elasticsearch
     expose:
-      - "5044"
-    env_file:
-      - .env
+      - "5000"
+      - "9600"
+    # env_file:
+    #   - .env
+    environment:
+      - xpack.monitoring.enabled=false
     networks:
       - infra
     restart: always
@@ -126,14 +171,18 @@ services:
   kibana:
     image: docker.elastic.co/kibana/kibana:8.17.0
     container_name: kibana
-    volumes:
-      - ./kibana/conf/kibana.yml:/usr/share/kibana/config/kibana.yml
+    # volumes:
+      # - ./kibana/conf/kibana.yml:/usr/share/kibana/config/kibana.yml
     ports:
       - "5601:5601"
     depends_on:
       - elasticsearch
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
+    environment:
+      # - node.name=kibana
+      # - cluster.name=elasticsearch_cluster
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     networks:
       - infra
     restart: always

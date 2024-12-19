@@ -1,12 +1,12 @@
-# filebeat.inputs:
-#   - type: container
-#     enabled: true
-#     paths:
-#       - /var/lib/docker/containers/*/*.log
+filebeat.inputs:
+  - type: container
+    enabled: true
+    paths:
+      - /var/lib/docker/containers/*/*.log
 
-# processors:
-#   - add_docker_metadata:
-#       host: "unix:///var/run/docker.sock"
+processors:
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
 
 # filebeat.autodiscover:
 #   providers:
@@ -24,12 +24,6 @@
 #   metrics:
 #     enabled: false
 
-filebeat.inputs:
-- type: filestream
- id: default-filestream
- paths:
-   - ingest_data/*.log
-
 
 filebeat.autodiscover:
  providers:
@@ -37,14 +31,14 @@ filebeat.autodiscover:
      hints.enabled: true
 
 
-processors:
-- add_docker_metadata: ~
+# processors:
+# - add_docker_metadata: ~
 
 
-setup.kibana:
- host: ${KIBANA_HOSTS}
- username: ${ELASTIC_USER}
- password: ${ELASTIC_PASSWORD}
+# setup.kibana:
+#  host: ${KIBANA_HOSTS}
+#  username: ${ELASTIC_USER}
+#  password: ${ELASTIC_PASSWORD}
 
 
 output.elasticsearch:

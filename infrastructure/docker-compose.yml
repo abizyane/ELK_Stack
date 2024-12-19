@@ -132,8 +132,6 @@ services:
        condition: service_healthy
    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
    container_name: elasticsearch
-  #  labels:
-  #    co.elastic.logs/module: elasticsearch
    volumes:
      - certs:/usr/share/elasticsearch/config/certs
      - esdata01:/usr/share/elasticsearch/data
@@ -156,11 +154,6 @@ services:
      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
      - xpack.security.transport.ssl.verification_mode=certificate
      - xpack.license.self_generated.type=${LICENSE}
-   mem_limit: ${ES_MEM_LIMIT}
-   ulimits:
-     memlock:
-       soft: -1
-       hard: -1
    healthcheck:
      test:
        [
@@ -181,13 +174,10 @@ services:
        condition: service_healthy
    image: docker.elastic.co/logstash/logstash:8.17.0
    container_name: logstash
-  #  labels:
-  #    co.elastic.logs/module: logstash
    user: root
    volumes:
      - certs:/usr/share/logstash/certs
      - logstashdata01:/usr/share/logstash/data
-     - "./logstash/logstash_ingest_data/:/usr/share/logstash/ingest_data/"
      - "./logstash/conf/pipeline/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
    environment:
      - xpack.monitoring.enabled=false
@@ -204,8 +194,6 @@ services:
        condition: service_healthy
    image: docker.elastic.co/kibana/kibana:8.17.0
    container_name: kibana
-  #  labels:
-  #    co.elastic.logs/module: kibana
    volumes:
      - certs:/usr/share/kibana/config/certs
      - kibanadata:/usr/share/kibana/data
@@ -220,7 +208,6 @@ services:
      - XPACK_SECURITY_ENCRYPTIONKEY=${ENCRYPTION_KEY}
      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${ENCRYPTION_KEY}
      - XPACK_REPORTING_ENCRYPTIONKEY=${ENCRYPTION_KEY}
-   mem_limit: ${KB_MEM_LIMIT}
    healthcheck:
      test:
        [
@@ -243,8 +230,7 @@ services:
    volumes:
      - certs:/usr/share/filebeat/certs
      - filebeatdata01:/usr/share/filebeat/data
-     - "./filebeat/filebeat_ingest_data/:/usr/share/filebeat/ingest_data/"
-     - "./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+     - "./filebeat/conf/filebeat.yml:/usr/share/filebeat/filebeat.yml"
      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
      - "/var/run/docker.sock:/var/run/docker.sock:ro"
    environment:

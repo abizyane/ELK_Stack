@@ -8,16 +8,9 @@ processors:
   - add_docker_metadata:
       host: "unix:///var/run/docker.sock"
 
-filebeat.autodiscover:
- providers:
-   - type: docker
-     hints.enabled: true
+monitoring.enabled: false
+filebeat.modules.enabled: false
 
-output.elasticsearch:
- hosts: ${ELASTIC_HOSTS}
- username: ${ELASTIC_USER}
- password: ${ELASTIC_PASSWORD}
- ssl.enabled: true
- ssl.certificate_authorities: "certs/ca/ca.crt"
+output.logstash:
+  hosts: ["logstash:5044"]
 
- monitoring.enabled: false

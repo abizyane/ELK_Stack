@@ -9,7 +9,7 @@ if [ ! -f config/certs/ca/ca.crt ]; then
 fi
 
 if [ ! -f config/certs/elasticsearch/elasticsearch.crt ]; then
-    echo "Creating certificates"
+    echo "Creating elasticsearch certificate"
     echo '{
       "instances": [
         {
@@ -71,8 +71,7 @@ curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" 
   "index_patterns": ["log-*"],
   "template": {
     "settings": {
-      "index.lifecycle.name": "astro_policy",
-      "index.lifecycle.rollover_alias": "logs"
+      "index.lifecycle.name": "astro_policy"
     }
   }
 }' > /dev/null 2>&1

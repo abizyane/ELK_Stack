@@ -1,32 +1,39 @@
 version: '3.9'
 
 volumes:
- certs:
-   driver: local
- elasticsearch_data:
-   driver: local
-  #  driver_opts:
-  #     type: none
-  #     device: ./elasticsearch/data
-  #     o: bind
- kibana_data:
-   driver: local
-  #  driver_opts:
-  #     type: none
-  #     device: ./kibana/data
-  #     o: bind
- filebeat_data:
-   driver: local
-  #  driver_opts:
-  #     type: none
-  #     device: ./filebeat/data
-  #     o: bind
- logstash_data:
-   driver: local
-  #  driver_opts:
-  #     type: none
-  #     device: ./logstash/data
-  #     o: bind
+  certs:
+    driver: local
+  elasticsearch_data:
+    driver: local
+   #  driver_opts:
+   #     type: none
+   #     device: ./elasticsearch/data
+   #     o: bind
+  kibana_data:
+    driver: local
+   #  driver_opts:
+   #     type: none
+   #     device: ./kibana/data
+   #     o: bind
+  filebeat_data:
+    driver: local
+   #  driver_opts:
+   #     type: none
+   #     device: ./filebeat/data
+   #     o: bind
+  logstash_data:
+    driver: local
+    # driver_opts:
+    #    type: none
+    #    device: ./logstash/data
+    #    o: bind
+  # database_data:
+  #   driver: local
+    # driver_opts:
+    #    type: none
+    #    device: ./database/data
+    #    o: bind
+
 
 networks:
   infra:
@@ -167,6 +174,7 @@ services:
       - xpack.license.self_generated.type=basic
     networks:
      - infra
+    mem_limit: 1g
     depends_on:
       elk_setup:
         condition: service_healthy
@@ -188,9 +196,11 @@ services:
      - logstash_data:/usr/share/logstash/data
      - "./logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
    environment:
+     - xpack.monitoring.enabled=false
      - ELASTIC_USER=elastic
      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
      - ELASTIC_HOSTS=https://elasticsearch:9200
+   mem_limit: 1g
    networks:
     - infra
    depends_on:

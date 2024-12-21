@@ -16,11 +16,6 @@ if [ ! -f config/certs/elasticsearch/elasticsearch.crt ]; then
           "name": "elasticsearch",
           "dns": ["elasticsearch", "localhost"],
           "ip": ["127.0.0.1"]
-        },
-        {
-          "name": "kibana",
-          "dns": ["kibana", "localhost"],
-          "ip": ["127.0.0.1"]
         }
       ]
     }' > config/certs/ins.yml
@@ -40,7 +35,7 @@ echo "Setting kibana_system password"
 until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 5; done
 
 echo "Setting ILM policy"
-curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_ilm/policy/filebeat -d '
+curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_ilm/policy/astro_policy -d '
 {
   "policy": {
     "phases": {
@@ -67,6 +62,17 @@ curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" 
           }
         }
       }
+    }
+  }
+}' > /dev/null 2>&1
+
+echo "Creating index template for all indexes"
+curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_index_template/logs_template -d '{
+  "index_patterns": ["log-*"],
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "astro_policy",
+      "index.lifecycle.rollover_alias": "logs"
     }
   }
 }' > /dev/null 2>&1

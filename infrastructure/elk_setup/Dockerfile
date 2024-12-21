@@ -2,9 +2,9 @@ FROM docker.elastic.co/elasticsearch/elasticsearch:8.17.0
 
 USER root
 
-COPY ./tools/script.sh /script.sh
+COPY ./tools/entrypoint.sh /entrypoint.sh
 
 RUN mkdir -p /usr/share/elasticsearch/config/certs &&\
-	chmod +x /script.sh
+	chmod +x /entrypoint.sh
 
-ENTRYPOINT [ "/script.sh" ]
+ENTRYPOINT [ "/entrypoint.sh" ]

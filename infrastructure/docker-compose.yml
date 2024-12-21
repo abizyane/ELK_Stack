@@ -188,11 +188,9 @@ services:
      - logstash_data:/usr/share/logstash/data
      - "./logstash/conf/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro"
    environment:
-     - xpack.monitoring.enabled=false
      - ELASTIC_USER=elastic
      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
      - ELASTIC_HOSTS=https://elasticsearch:9200
-    #  - LOGSTASH_HOSTS=http://logstash:5044
    networks:
     - infra
    depends_on:
@@ -214,7 +212,6 @@ services:
     ports:
       - "5601:5601"
     environment:
-      - SERVERNAME=kibana
       - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
@@ -241,17 +238,9 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
       - certs:/usr/share/filebeat/certs
-    environment:
-      - ELASTIC_USER=elastic
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      # - ELASTIC_HOSTS=https://elasticsearch:9200
-      # - KIBANA_HOSTS=http://kibana:5601
-      - LOGSTASH_HOSTS=http://logstash:5044
     networks:
      - infra
     depends_on:
-      elasticsearch:
-        condition: service_healthy
       logstash:
         condition: service_healthy
     restart: always

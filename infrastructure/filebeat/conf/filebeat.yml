@@ -8,9 +8,5 @@ processors:
   - add_docker_metadata:
       host: "unix:///var/run/docker.sock"
 
-monitoring.enabled: false
-filebeat.modules.enabled: false
-
 output.logstash:
   hosts: ["logstash:5044"]
-

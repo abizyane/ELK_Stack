@@ -32,9 +32,9 @@ echo "Waiting for Elasticsearch ..."
 until curl -s --cacert config/certs/ca/ca.crt https://elasticsearch:9200 | grep -q "missing authentication credentials"; do sleep 10; done
 
 echo "Setting kibana_system password"
-until curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 5; done
+curl -s -X POST --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" > /dev/null 2>&1
 
-echo "Setting ILM policy"
+echo "Setting ILM policy ..."
 curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_ilm/policy/astro_policy -d '
 {
   "policy": {
@@ -43,7 +43,7 @@ curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" 
         "min_age": "0ms",
         "actions": {
           "rollover": {
-            "max_age": "7d",
+            "max_age": "2d",
             "max_size": "5gb"
           }
         }
@@ -66,7 +66,7 @@ curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" 
   }
 }' > /dev/null 2>&1
 
-echo "Creating index template for all indexes"
+echo "Creating index template for all indexes ..."
 curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" -H "Content-Type: application/json" https://elasticsearch:9200/_index_template/logs_template -d '{
   "index_patterns": ["log-*"],
   "template": {
@@ -77,3 +77,6 @@ curl -s -X PUT --cacert config/certs/ca/ca.crt -u "elastic:${ELASTIC_PASSWORD}" 
 }' > /dev/null 2>&1
 
 echo "Done!"
+
+echo "Deleting the setup container ..."
+curl --unix-socket /var/run/docker.sock -X DELETE "http://localhost/containers/elk_setup?force=true" > /dev/null 2>&1

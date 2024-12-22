@@ -136,6 +136,7 @@ services:
     container_name: elk_setup
     volumes:
       - certs:/usr/share/elasticsearch/config/certs
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     environment:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - KIBANA_PASSWORD=${KIBANA_PASSWORD}
@@ -156,11 +157,8 @@ services:
     ports:
       - "9200:9200"
     environment:
-      - node.name=elasticsearch
-      - cluster.name=${CLUSTER_NAME}
       - discovery.type=single-node
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - bootstrap.memory_lock=true
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
       - xpack.security.http.ssl.key=certs/elasticsearch/elasticsearch.key
